@@ -218,7 +218,7 @@ const LeadFormContent = () => {
       <SuccessModal />
       {/* Header Card */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-4 border border-gray-200">
-        <h1 className="text-3xl font-bold text-center text-red-600 mb-2">
+        <h1 className="text-3xl font-bold text-center text-black-600 mb-2">
           Eagle Jeep Select
         </h1>
         <p className="text-gray-700 mb-2">
@@ -431,7 +431,7 @@ const LeadFormContent = () => {
         {/* Location Field */}
         <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <label htmlFor="location" className="block font-medium mb-4">
-            Você quer ser atendido em qual unidade da Sulpar?{" "}
+            Você quer ser atendido em qual unidade da Eagle Jeep?{" "}
             <span className="text-red-600">*</span>
           </label>
           <select

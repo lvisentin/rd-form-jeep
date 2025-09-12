@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Eagle Jeep Select",
   description: "Eagle Jeep Select",
+
 };
 
 export default function RootLayout({
