@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  const token = process.env.RD_TOKEN;
+  const token = "68c420b374dae10019cbb6a0";
   const url = `https://crm.rdstation.com/api/v1/contacts?email=${encodeURIComponent(
     email
   )}&token=${token}`;

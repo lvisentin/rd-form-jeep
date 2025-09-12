@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Semana Eletrificados Toyota Sulpar",
-  description: "Semana Eletrificados Toyota Sulpar",
+  title: "Eagle Jeep Select",
+  description: "Eagle Jeep Select",
 };
 
 export default function RootLayout({

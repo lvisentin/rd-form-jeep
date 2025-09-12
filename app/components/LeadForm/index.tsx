@@ -12,14 +12,16 @@ import { useSearchParams } from "next/navigation";
 import { submitForm } from "./actions";
 import { initialState } from "./schema";
 
-const SubmitButton = ({ isPending }: { isPending: boolean }) => {
+const SubmitButton = ({ isPending, userExists }: { isPending: boolean, userExists: boolean }) => {
   return (
     <button
       type="submit"
-      disabled={isPending}
+      disabled={isPending || !userExists}
       className={`py-2 px-6 ${
         isPending ? "bg-gray-500" : "bg-black hover:bg-black/90"
-      } text-white font-medium rounded-lg transition duration-200`}
+      } text-white font-medium rounded-lg transition duration-200 ${
+        !userExists ? "opacity-50 cursor-not-allowed" : ""
+      }`}
     >
       {isPending ? "Enviando..." : "Enviar"}
     </button>
@@ -58,74 +60,78 @@ const LeadFormContent = () => {
     setFormFields((prev) => ({ ...prev, [name]: value }));
   };
 
-  // // Busca dados do CRM ao perder o foco do email
-  // const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-  //   const email = e.target.value;
-  //   if (!email || !/\S+@\S+\.\S+/.test(email)) return;
-  //   setIsLoading(true);
-  //   setUserExists(false);
-  //   setHasCheckedEmail(false);
-  //   try {
-  //     const res = await fetch(
-  //       `/api/check-email?email=${encodeURIComponent(email)}`
-  //     );
-  //     const data = await res.json();
-  //     if (data && data.contacts && data.contacts.length > 0) {
-  //       const contact = data.contacts[0];
-  //       setUserExists(true);
-  //       setFormFields((prev) => ({
-  //         ...prev,
-  //         name: contact.name || "",
-  //         email: contact.email || email,
-  //         isClient: contact.isClient || "",
-  //         vehicleType: contact.vehicleType || "",
-  //         vehicleModel: contact.vehicleModel || "",
-  //         location: contact.location || "",
-  //         timePeriod: contact.timePeriod || "",
-  //         visitDay: contact.visitDay || "",
-  //       }));
-  //     }
-  //     setHasCheckedEmail(true);
-  //   } catch (err) {
-  //     // erro silencioso
-  //     setHasCheckedEmail(true);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  // Busca dados do CRM ao perder o foco do email
+  const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    if (!email || !/\S+@\S+\.\S+/.test(email)) return;
+    setIsLoading(true);
+    setUserExists(false);
+    setHasCheckedEmail(false);
+    try {
+      const res = await fetch(
+        `/api/check-email?email=${encodeURIComponent(email)}`
+      );
+      const data = await res.json();
+      if (data && data.contacts && data.contacts.length > 0) {
+        const contact = data.contacts[0];
+        setUserExists(true);
+        setFormFields((prev) => ({
+          ...prev,
+          name: contact.name || "",
+          email: contact.email || email,
+          isClient: contact.isClient || "",
+          vehicleType: contact.vehicleType || "",
+          vehicleModel: contact.vehicleModel || "",
+          location: contact.location || "",
+          timePeriod: contact.timePeriod || "",
+          visitDay: contact.visitDay || "",
+        }));
+      }
+      else {
+        setUserExists(false);
+      }
 
-  // useEffect(() => {
-  //   // Check for email parameter in URL
-  //   const emailParam = searchParams.get("email");
-  //   if (emailParam) {
-  //     setIsLoading(true);
-  //     setHasCheckedEmail(false);
-  //     fetch(`/api/check-email?email=${encodeURIComponent(emailParam)}`)
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         if (data && data.contacts && data.contacts.length > 0) {
-  //           const contact = data.contacts[0];
-  //           setUserExists(true);
-  //           setFormFields((prev) => ({
-  //             ...prev,
-  //             name: contact.name || "",
-  //             email: contact.email || emailParam,
-  //             isClient: contact.isClient || "",
-  //             vehicleType: contact.vehicleType || "",
-  //             vehicleModel: contact.vehicleModel || "",
-  //             location: contact.location || "",
-  //             timePeriod: contact.timePeriod || "",
-  //             visitDay: contact.visitDay || "",
-  //           }));
-  //         }
-  //         setHasCheckedEmail(true);
-  //       })
-  //       .catch(() => {
-  //         setHasCheckedEmail(true);
-  //       })
-  //       .finally(() => setIsLoading(false));
-  //   }
-  // }, [searchParams]);
+    } catch (err) {
+      // erro silencioso
+      setHasCheckedEmail(true);
+    } finally {
+      setHasCheckedEmail(true);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Check for email parameter in URL
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setIsLoading(true);
+      setHasCheckedEmail(false);
+      fetch(`/api/check-email?email=${encodeURIComponent(emailParam)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.contacts && data.contacts.length > 0) {
+            const contact = data.contacts[0];
+            setUserExists(true);
+            setFormFields((prev) => ({
+              ...prev,
+              name: contact.name || "",
+              email: contact.email || emailParam,
+              isClient: contact.isClient || "",
+              vehicleType: contact.vehicleType || "",
+              vehicleModel: contact.vehicleModel || "",
+              location: contact.location || "",
+              timePeriod: contact.timePeriod || "",
+              visitDay: contact.visitDay || "",
+            }));
+          }
+          setHasCheckedEmail(true);
+        })
+        .catch(() => {
+          setHasCheckedEmail(true);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (state.success && formRef.current) {
@@ -213,10 +219,10 @@ const LeadFormContent = () => {
       {/* Header Card */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-4 border border-gray-200">
         <h1 className="text-3xl font-bold text-center text-red-600 mb-2">
-          Semana Eletrificados Toyota Sulpar
+          Eagle Jeep Select
         </h1>
         <p className="text-gray-700 mb-2">
-        A Semana Eletrificados Toyota está com tudo! E para sua experiência ser perfeita, queremos te conhecer um pouco melhor! Para isso, você só precisa responder algumas perguntas rápidas. Vamos lá?
+        A Eagle Jeep Select está com tudo! E para sua experiência ser perfeita, queremos te conhecer um pouco melhor! Para isso, você só precisa responder algumas perguntas rápidas. Vamos lá?
         </p>
       </div>
 
@@ -229,10 +235,18 @@ const LeadFormContent = () => {
 
       {userExists && !isLoading && hasCheckedEmail && (
         <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
-          <p className="font-medium">Bem-vindo de volta!</p>
+          <p className="font-medium">Email encontrado!</p>
           <p>
             Encontramos seu registro anterior. Você pode revisar e atualizar
             suas informações.
+          </p>
+        </div>
+      )}
+      {!userExists && !isLoading && hasCheckedEmail && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="font-medium">Email inválido.</p>
+          <p>
+            Por favor, preencha o mesmo email usado no cadastro no evento.
           </p>
         </div>
       )}
@@ -266,7 +280,6 @@ const LeadFormContent = () => {
             placeholder="Sua resposta"
             value={formFields.name}
             onChange={handleFieldChange}
-            readOnly={userExists}
             onInvalid={(e) => e.preventDefault()}
           />
           {state.errors?.name && (
@@ -296,6 +309,7 @@ const LeadFormContent = () => {
             onChange={handleFieldChange}
             readOnly={userExists}
             onInvalid={(e) => e.preventDefault()}
+            onBlur={handleEmailBlur}
           />
           {state.errors?.email && (
             <p className="text-red-500 text-sm mt-1">{state.errors.email}</p>
@@ -305,7 +319,7 @@ const LeadFormContent = () => {
         {/* Is Client Field */}
         <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <p className="block font-medium mb-4">
-            Você já é cliente da Toyota Sulpar?{" "}
+            Você já é cliente da Eagle Jeep?{" "}
             <span className="text-red-600">*</span>
           </p>
           <div className="space-y-2">
@@ -383,7 +397,7 @@ const LeadFormContent = () => {
         {/* Vehicle Model Field */}
         <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <label htmlFor="vehicleModel" className="block font-medium mb-4">
-            Qual modelo Toyota você procura?
+            Qual modelo Jeep você procura?
             <span className="text-red-600">*</span>
           </label>
           <div className="space-y-2">
@@ -398,11 +412,13 @@ const LeadFormContent = () => {
               <option value="" disabled>
                 Selecione um modelo
               </option>
-              <option value="COROLLACROSS">Corolla Cross</option>
-              <option value="RAV4">RAV4</option>
-              <option value="COROLLASEDAN">Corolla Sedan</option>
-              <option value="OUTROTOYOTA">Outro Toyota</option>
-              <option value="SEMINOVO">Seminovo</option>
+              <option value="RENEGADE">RENEGADE</option>
+              <option value="COMPASS">COMPASS</option>
+              <option value="COMMANDER">COMMANDER</option>
+              <option value="GRAND CHEROKEE">GRAND CHEROKEE</option>
+              <option value="WRANGLER">WRANGLER</option>
+              <option value="GLADIATOR">GLADIATOR</option>
+              <option value="SEMINOVO">SEMINOVO</option>  
             </select>
           </div>
           {state.errors?.vehicleModel && (
@@ -430,9 +446,12 @@ const LeadFormContent = () => {
             <option value="" disabled>
               Selecione uma unidade
             </option>
-            <option value="ALTODAXV">Alto da XV - Av. Nossa Senhora da Luz, 1248 - Alto da XV - Curitiba</option>
-            <option value="HAUER">Hauer - Av. Marechal Floriano Peixoto, 4796 - Hauer - Curitiba</option>
-            <option value="PARANAGUA">Paranaguá - Alameda Coronel Elysio Pereira, 204 - Estradinha - Paranaguá</option>
+            <option value="RECREIO">Avenida das Américas, 17.050 - Recreio dos Bandeirantes- Rio de Janeiro</option>
+            <option value="IGUAÇU">Avenida Getúlio de Moura, 616 - Centro - Nova Iguaçu - Rio de Janeiro</option>
+            <option value="MACAÉ"> Início da Linha Azul  - Botafogo - Macaé - Rio de Janeiro</option>
+            <option value="BARBACENA">  Avenida Governador Bias Fortes, 203, Loja 01 a 04 - Pontilhão - Barbacena - Minas Gerais</option>
+            <option value="MURIAÉ"> Avenida Cristiano Ferreira Varella, 55 - Universitário - Muriaé - Minas Gerais</option>
+            <option value="UBÁ"> Avenida dos Ex Combatentes, 1433 - Santa Luzia - Ubá - Minas Gerais</option>
           </select>
           {state.errors?.location && (
             <p className="text-red-500 text-sm mt-1">{state.errors.location}</p>
@@ -497,12 +516,12 @@ const LeadFormContent = () => {
             <option value="" disabled>
               Selecione um dia
             </option>
-            <option value="11/08 - Segunda-feira">11/08 - Segunda-feira</option>
-            <option value="12/08 - Terça-feira">12/08 - Terça-feira</option>
-            <option value="13/08 - Quarta-feira">13/08 - Quarta-feira</option>
-            <option value="14/08 - Quinta-feira">14/08 - Quinta-feira</option>
-            <option value="15/08 - Sexta-feira">15/08 - Sexta-feira</option>
-            <option value="16/08 - Sábado">16/08 - Sábado</option>
+            <option value="22/09 - Segunda-feira">22/09 - Segunda-feira</option>
+            <option value="23/09 - Terça-feira">23/09 - Terça-feira</option>
+            <option value="24/09 - Quarta-feira">24/09 - Quarta-feira</option>
+            <option value="25/09 - Quinta-feira">25/09 - Quinta-feira</option>
+            <option value="26/09 - Sexta-feira">26/09 - Sexta-feira</option>
+          <option value="27/09 - Sábado">27/09 - Sábado</option>
           </select>
           {state.errors?.visitDay && (
             <p className="text-red-500 text-sm mt-1">{state.errors.visitDay}</p>
@@ -514,7 +533,7 @@ const LeadFormContent = () => {
           <div className="text-red-600 text-sm">
             * Indica uma pergunta obrigatória
           </div>
-          <SubmitButton isPending={isPending} />
+          <SubmitButton isPending={isPending} userExists={userExists} />
         </div>
       </form>
 
