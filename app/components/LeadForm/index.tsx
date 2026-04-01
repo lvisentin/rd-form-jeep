@@ -415,7 +415,6 @@ const LeadFormContent = () => {
               <option value="RENEGADE">RENEGADE</option>
               <option value="COMPASS">COMPASS</option>
               <option value="COMMANDER">COMMANDER</option>
-              <option value="GRAND CHEROKEE">GRAND CHEROKEE</option>
               <option value="WRANGLER">WRANGLER</option>
               <option value="GLADIATOR">GLADIATOR</option>
               <option value="SEMINOVO">SEMINOVO</option>  
