@@ -515,12 +515,12 @@ const LeadFormContent = () => {
             <option value="" disabled>
               Selecione um dia
             </option>
-            <option value="22/09 - Segunda-feira">22/09 - Segunda-feira</option>
-            <option value="23/09 - Terça-feira">23/09 - Terça-feira</option>
-            <option value="24/09 - Quarta-feira">24/09 - Quarta-feira</option>
-            <option value="25/09 - Quinta-feira">25/09 - Quinta-feira</option>
-            <option value="26/09 - Sexta-feira">26/09 - Sexta-feira</option>
-          <option value="27/09 - Sábado">27/09 - Sábado</option>
+            <option value="13/04 - Segunda-feira">13/04 - Segunda-feira</option>
+            <option value="14/04 - Terça-feira">14/04 - Terça-feira</option>
+            <option value="15/04 - Quarta-feira">15/04 - Quarta-feira</option>
+            <option value="16/04 - Quinta-feira">16/04 - Quinta-feira</option>
+            <option value="17/04 - Sexta-feira">17/04 - Sexta-feira</option>
+            <option value="18/04 - Sábado">18/04 - Sábado</option>
           </select>
           {state.errors?.visitDay && (
             <p className="text-red-500 text-sm mt-1">{state.errors.visitDay}</p>
